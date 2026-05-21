@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
 import {
   MonitorIcon,
@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
@@ -24,10 +23,17 @@ const THEMES = [
   { value: "system", label: "System", icon: MonitorIcon },
 ] as const;
 
+const subscribeMounted = () => () => {};
+const getMountedClient = () => true;
+const getMountedServer = () => false;
+
 export function ThemeToggle() {
   const { theme, setTheme, resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const mounted = useSyncExternalStore(
+    subscribeMounted,
+    getMountedClient,
+    getMountedServer,
+  );
 
   const activeIcon = mounted
     ? resolvedTheme === "dark"

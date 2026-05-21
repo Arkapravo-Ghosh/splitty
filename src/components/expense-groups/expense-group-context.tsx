@@ -99,7 +99,9 @@ export function ExpenseGroupProvider({
   // initialised once and won't pick them up. Sync from the latest props
   // whenever the user identity changes so the dropdown isn't stuck empty.
   const latestInitialRef = useRef({ initialGroups, initialActiveGroupId });
-  latestInitialRef.current = { initialGroups, initialActiveGroupId };
+  useEffect(() => {
+    latestInitialRef.current = { initialGroups, initialActiveGroupId };
+  });
   const lastUserIdRef = useRef<string | null>(currentUser?.id ?? null);
   useEffect(() => {
     const nextId = currentUser?.id ?? null;
