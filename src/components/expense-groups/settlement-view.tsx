@@ -6,7 +6,9 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
+import { Switch } from "@/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -36,6 +38,7 @@ export function SettlementView({ groupId }: { groupId: string }) {
   const [loading, setLoading] = useState(true);
   const [updatingKey, setUpdatingKey] = useState<string | null>(null);
   const [refreshing, startRefreshing] = useTransition();
+  const [mineOnly, setMineOnly] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -114,6 +117,14 @@ export function SettlementView({ groupId }: { groupId: string }) {
   }
 
   const symbol = data.group.currencySymbol || "";
+  const myId = currentUser?.id ?? null;
+  const involvesMe = (row: SettlementRow) =>
+    !!myId && (row.fromUserId === myId || row.toUserId === myId);
+  const visibleSettlements =
+    mineOnly && myId
+      ? data.settlements.filter(involvesMe)
+      : data.settlements;
+  const canFilter = !!myId && data.settlements.some(involvesMe);
 
   return (
     <section className="flex w-full max-w-3xl flex-col gap-4">
@@ -148,7 +159,22 @@ export function SettlementView({ groupId }: { groupId: string }) {
           Everyone&apos;s squared up — no settlements needed.
         </p>
       ) : (
-        <div className="border border-border">
+        <>
+          <div className="flex items-center justify-end gap-2">
+            <Label
+              htmlFor="settlement-mine-only"
+              className="text-xs text-muted-foreground"
+            >
+              Only my dues
+            </Label>
+            <Switch
+              id="settlement-mine-only"
+              checked={mineOnly}
+              disabled={!canFilter}
+              onCheckedChange={setMineOnly}
+            />
+          </div>
+          <div className="border border-border">
           <Table>
             <TableHeader>
               <TableRow>
@@ -159,7 +185,17 @@ export function SettlementView({ groupId }: { groupId: string }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.settlements.map((row) => {
+              {visibleSettlements.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={4}
+                    className="py-6 text-center text-xs text-muted-foreground"
+                  >
+                    No settlements involve you.
+                  </TableCell>
+                </TableRow>
+              ) : null}
+              {visibleSettlements.map((row) => {
                 const key = `${row.fromUserId}|${row.toUserId}`;
                 const isRecipient = currentUser?.id === row.toUserId;
                 const isUpdating = updatingKey === key;
@@ -210,6 +246,7 @@ export function SettlementView({ groupId }: { groupId: string }) {
             </TableBody>
           </Table>
         </div>
+        </>
       )}
     </section>
   );
