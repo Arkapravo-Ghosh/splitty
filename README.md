@@ -53,8 +53,6 @@ The result is `O(n)` transfers in the typical case rather than the naive `O(n²)
 | Auth          | `jose` (JWT) + `bcryptjs` + httpOnly cookie                             |
 | Notifications | `sonner` (toasts)                                                       |
 
-> ⚠️ This project tracks the latest Next.js. APIs and conventions may differ from older versions — see `AGENTS.md`.
-
 ## Project layout
 
 ```
