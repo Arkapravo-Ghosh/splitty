@@ -61,11 +61,14 @@ async function loadContext(
 }
 
 function canModify(
+  group: { ownerId: string },
   expense: { addedByUserId: string; paidByUserId: string },
   userId: string,
 ) {
   return (
-    expense.addedByUserId === userId || expense.paidByUserId === userId
+    group.ownerId === userId ||
+    expense.addedByUserId === userId ||
+    expense.paidByUserId === userId
   );
 }
 
@@ -85,7 +88,7 @@ export async function PATCH(
   if (!loaded) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
-  if (!canModify(loaded.expense, session.user.id)) {
+  if (!canModify(loaded.group, loaded.expense, session.user.id)) {
     return NextResponse.json(
       { error: "Only the person who added or paid can edit this expense" },
       { status: 403 },
@@ -245,7 +248,7 @@ export async function DELETE(
   if (!loaded) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
-  if (!canModify(loaded.expense, session.user.id)) {
+  if (!canModify(loaded.group, loaded.expense, session.user.id)) {
     return NextResponse.json(
       { error: "Only the person who added or paid can delete this expense" },
       { status: 403 },

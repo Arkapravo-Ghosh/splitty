@@ -157,6 +157,12 @@ export const expenseGroupClient = {
       { method: "DELETE" },
     );
   },
+  leaveGroup(groupId: string, userId: string) {
+    return call<{ ok: true }>(
+      `/api/expense-groups/${groupId}/members/${userId}`,
+      { method: "DELETE" },
+    );
+  },
   listExpenses(groupId: string) {
     return call<{ expenses: ExpenseRow[] }>(
       `/api/expense-groups/${groupId}/expenses`,

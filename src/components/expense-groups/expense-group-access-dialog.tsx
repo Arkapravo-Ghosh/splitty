@@ -1,7 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useState, useTransition } from "react";
-import { PencilSimpleIcon, TrashIcon, UserPlusIcon } from "@phosphor-icons/react";
+import {
+  PencilSimpleIcon,
+  SignOutIcon,
+  TrashIcon,
+  UserPlusIcon,
+} from "@phosphor-icons/react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -33,6 +38,7 @@ import {
 } from "@/lib/expense-groups/client";
 import { useExpenseGroups } from "./expense-group-context";
 import { ExpenseGroupDeleteDialog } from "./expense-group-delete-dialog";
+import { ExpenseGroupLeaveDialog } from "./expense-group-leave-dialog";
 
 type Props = {
   open: boolean;
@@ -40,7 +46,7 @@ type Props = {
 };
 
 export function ExpenseGroupAccessDialog({ open, onOpenChange }: Props) {
-  const { activeGroup, upsertGroup } = useExpenseGroups();
+  const { activeGroup, currentUser, upsertGroup } = useExpenseGroups();
   const [members, setMembers] = useState<ExpenseGroupMemberSummary[]>([]);
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -52,6 +58,8 @@ export function ExpenseGroupAccessDialog({ open, onOpenChange }: Props) {
   const [changingCurrency, startChangingCurrency] = useTransition();
   const [togglingLock, startTogglingLock] = useTransition();
   const [pendingDelete, setPendingDelete] =
+    useState<ExpenseGroupSummary | null>(null);
+  const [pendingLeave, setPendingLeave] =
     useState<ExpenseGroupSummary | null>(null);
 
   const isOwner = !!activeGroup?.isOwner;
@@ -345,6 +353,28 @@ export function ExpenseGroupAccessDialog({ open, onOpenChange }: Props) {
           </div>
         ) : null}
 
+        {!isOwner && activeGroup && currentUser ? (
+          <div className="flex items-center justify-between gap-2 border-t border-border pt-3">
+            <div className="flex flex-col">
+              <span className="text-xs font-medium text-foreground">
+                Leave group
+              </span>
+              <span className="text-xs text-muted-foreground">
+                Your past expenses stay so the owner can clean up.
+              </span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPendingLeave(activeGroup)}
+              className="border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive dark:border-destructive/50"
+            >
+              <SignOutIcon />
+              Leave
+            </Button>
+          </div>
+        ) : null}
+
         <div className="-mx-1 max-h-72 overflow-y-auto">
           {loading ? (
             <div className="flex items-center justify-center py-6 text-xs text-muted-foreground">
@@ -398,12 +428,23 @@ export function ExpenseGroupAccessDialog({ open, onOpenChange }: Props) {
       </DialogContent>
       <ExpenseGroupDeleteDialog
         group={pendingDelete}
+        onDeleted={() => {
+          setPendingDelete(null);
+          onOpenChange(false);
+        }}
         onOpenChange={(next) => {
-          if (!next) {
-            setPendingDelete(null);
-            // If the active group was just deleted, close this modal too.
-            if (!activeGroup) onOpenChange(false);
-          }
+          if (!next) setPendingDelete(null);
+        }}
+      />
+      <ExpenseGroupLeaveDialog
+        group={pendingLeave}
+        userId={currentUser?.id ?? null}
+        onLeft={() => {
+          setPendingLeave(null);
+          onOpenChange(false);
+        }}
+        onOpenChange={(next) => {
+          if (!next) setPendingLeave(null);
         }}
       />
     </Dialog>

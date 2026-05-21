@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { and, eq, or, sql } from "drizzle-orm";
+import { and, eq, inArray, or, sql } from "drizzle-orm";
 
 import { db } from "@/db";
 import {
@@ -96,9 +96,26 @@ export async function GET(
     paidByUser.set(row.userId, Number.parseFloat(row.total));
   }
 
-  const splitMembers = memberRows.map((m) => ({
-    id: m.userId,
-    paid: paidByUser.get(m.userId) ?? 0,
+  // Ex-members who still have expenses attached remain in the split so the
+  // math stays balanced. They're effectively frozen participants until the
+  // owner cleans up their expenses or they rejoin.
+  const orphanPayerIds = Array.from(paidByUser.keys()).filter(
+    (id) => !memberMap.has(id),
+  );
+  if (orphanPayerIds.length > 0) {
+    const orphanRows = await db
+      .select({ userId: users.id, name: users.name, email: users.email })
+      .from(users)
+      .where(inArray(users.id, orphanPayerIds));
+    for (const o of orphanRows) {
+      memberMap.set(o.userId, { name: o.name, email: o.email });
+    }
+  }
+
+  const allParticipants = Array.from(memberMap.keys());
+  const splitMembers = allParticipants.map((id) => ({
+    id,
+    paid: paidByUser.get(id) ?? 0,
   }));
   const totalExpense = splitMembers.reduce((sum, m) => sum + m.paid, 0);
   const transfers = computeSettlements(splitMembers, totalExpense);
@@ -133,6 +150,7 @@ export async function GET(
     };
   });
 
+  const participantCount = splitMembers.length;
   return NextResponse.json({
     group: {
       id: group.id,
@@ -141,8 +159,8 @@ export async function GET(
       currencySymbol: group.currencySymbol,
     },
     totalExpense,
-    memberCount: memberRows.length,
-    perMemberShare: memberRows.length > 0 ? totalExpense / memberRows.length : 0,
+    memberCount: participantCount,
+    perMemberShare: participantCount > 0 ? totalExpense / participantCount : 0,
     settlements: enriched,
   });
 }

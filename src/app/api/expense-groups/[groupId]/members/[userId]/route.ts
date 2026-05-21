@@ -31,16 +31,18 @@ export async function DELETE(
   if (!group) {
     return NextResponse.json({ error: "Group not found" }, { status: 404 });
   }
-  if (group.ownerId !== session.user.id) {
+  if (group.ownerId === userId) {
+    return NextResponse.json(
+      { error: "The owner cannot leave or be removed" },
+      { status: 400 },
+    );
+  }
+  const isOwner = group.ownerId === session.user.id;
+  const isSelf = session.user.id === userId;
+  if (!isOwner && !isSelf) {
     return NextResponse.json(
       { error: "Only the owner can revoke access" },
       { status: 403 },
-    );
-  }
-  if (group.ownerId === userId) {
-    return NextResponse.json(
-      { error: "The owner cannot be removed" },
-      { status: 400 },
     );
   }
 

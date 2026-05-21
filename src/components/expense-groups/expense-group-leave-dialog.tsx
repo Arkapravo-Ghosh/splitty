@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { TrashIcon } from "@phosphor-icons/react";
+import { SignOutIcon } from "@phosphor-icons/react";
 import { toast } from "sonner";
 
 import {
@@ -24,33 +24,35 @@ import { useExpenseGroups } from "./expense-group-context";
 
 type Props = {
   group: ExpenseGroupSummary | null;
+  userId: string | null;
   onOpenChange: (open: boolean) => void;
-  onDeleted?: () => void;
+  onLeft?: () => void;
 };
 
-export function ExpenseGroupDeleteDialog({
+export function ExpenseGroupLeaveDialog({
   group,
+  userId,
   onOpenChange,
-  onDeleted,
+  onLeft,
 }: Props) {
   const { removeGroup } = useExpenseGroups();
   const [pending, startTransition] = useTransition();
-  const open = !!group;
+  const open = !!group && !!userId;
 
   function handleConfirm() {
-    if (!group || pending) return;
+    if (!group || !userId || pending) return;
     startTransition(async () => {
       try {
-        await expenseGroupClient.remove(group.id);
+        await expenseGroupClient.leaveGroup(group.id, userId);
         removeGroup(group.id);
-        toast.success(`Deleted “${group.name}”`);
-        onDeleted?.();
+        toast.success(`You left “${group.name}”`);
+        onLeft?.();
         onOpenChange(false);
       } catch (err) {
         const message =
           err instanceof ExpenseGroupError || err instanceof Error
             ? err.message
-            : "Failed to delete group";
+            : "Failed to leave group";
         toast.error(message);
       }
     });
@@ -65,12 +67,14 @@ export function ExpenseGroupDeleteDialog({
     >
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete expense group?</AlertDialogTitle>
+          <AlertDialogTitle>Leave this group?</AlertDialogTitle>
           <AlertDialogDescription>
             {group ? (
               <>
-                This permanently removes <b>{group.name}</b> and revokes access
-                for everyone in it. This action cannot be undone.
+                You&apos;ll lose access to <b>{group.name}</b> and won&apos;t
+                appear in its settlements. Your past expenses stay in the group
+                — the owner can edit or delete them. If you&apos;re added back
+                later, your expenses are linked to you again automatically.
               </>
             ) : null}
           </AlertDialogDescription>
@@ -82,8 +86,8 @@ export function ExpenseGroupDeleteDialog({
             disabled={pending}
             onClick={handleConfirm}
           >
-            {pending ? <Spinner /> : <TrashIcon />}
-            Delete
+            {pending ? <Spinner /> : <SignOutIcon />}
+            Leave group
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

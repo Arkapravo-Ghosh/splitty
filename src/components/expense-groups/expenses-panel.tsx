@@ -193,7 +193,8 @@ export function ExpensesPanel() {
                 const canActOn =
                   !!currentUser &&
                   !isLocked &&
-                  (row.addedBy.id === currentUser.id ||
+                  (activeGroup.isOwner ||
+                    row.addedBy.id === currentUser.id ||
                     row.paidBy.id === currentUser.id);
                 const dt = formatDateTime(row.createdAt);
                 return (
