@@ -58,8 +58,8 @@ export default function SignInPage() {
   );
 
   return (
-    <main className="flex flex-1 items-center justify-center px-6 py-12">
-      <Card className="w-full max-w-sm">
+    <main className="w-full max-w-sm">
+      <Card className="w-full">
         <CardHeader>
           <CardTitle>Sign in</CardTitle>
           <CardDescription>
