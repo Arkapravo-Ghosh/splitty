@@ -26,7 +26,17 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const SITE_URL = "https://splitty.arkapravo.in";
+const OG_IMAGE = {
+  url: "/sample.webp",
+  width: 3504,
+  height: 1880,
+  alt: "Splitty — split your expenses easily",
+  type: "image/webp",
+};
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Splitty",
     template: "%s · Splitty",
@@ -45,12 +55,16 @@ export const metadata: Metadata = {
     title: "Splitty",
     description: "Split your expenses Easily",
     siteName: "Splitty",
+    url: SITE_URL,
     type: "website",
+    locale: "en_US",
+    images: [OG_IMAGE],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Splitty",
     description: "Split your expenses Easily",
+    images: [OG_IMAGE],
   },
   robots: { index: true, follow: true },
 };
