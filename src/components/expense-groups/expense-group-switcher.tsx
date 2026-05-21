@@ -27,12 +27,23 @@ import { useExpenseGroups } from "./expense-group-context";
 import { ExpenseGroupCreateDialog } from "./expense-group-create-dialog";
 
 export function ExpenseGroupSwitcher() {
-  const { groups, activeGroup, activeGroupId, loading, setActiveGroupId } =
-    useExpenseGroups();
+  const {
+    groups,
+    activeGroup,
+    activeGroupId,
+    loading,
+    setActiveGroupId,
+    refresh,
+  } = useExpenseGroups();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
   const [createSeed, setCreateSeed] = useState("");
+
+  function handleOpenChange(next: boolean) {
+    setOpen(next);
+    if (next) void refresh();
+  }
 
   function handleSelect(id: string) {
     setActiveGroupId(id);
@@ -49,7 +60,7 @@ export function ExpenseGroupSwitcher() {
 
   return (
     <>
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover open={open} onOpenChange={handleOpenChange}>
         <PopoverTrigger
           render={
             <Button

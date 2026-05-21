@@ -93,6 +93,24 @@ export function ExpenseGroupProvider({
     void refresh();
   }, [refresh]);
 
+  // When the signed-in user changes (e.g. after sign-in triggers a
+  // `router.refresh()`), the layout re-renders with fresh
+  // `initialGroups`/`initialActiveGroupId`, but our `useState` already
+  // initialised once and won't pick them up. Sync from the latest props
+  // whenever the user identity changes so the dropdown isn't stuck empty.
+  const latestInitialRef = useRef({ initialGroups, initialActiveGroupId });
+  latestInitialRef.current = { initialGroups, initialActiveGroupId };
+  const lastUserIdRef = useRef<string | null>(currentUser?.id ?? null);
+  useEffect(() => {
+    const nextId = currentUser?.id ?? null;
+    if (lastUserIdRef.current === nextId) return;
+    lastUserIdRef.current = nextId;
+    const { initialGroups: g, initialActiveGroupId: a } = latestInitialRef.current;
+    setGroups(g);
+    setActiveGroupIdState(a);
+    if (nextId) void refresh();
+  }, [currentUser?.id, refresh]);
+
   const initialActiveRef = useRef(initialActiveGroupId);
   useEffect(() => {
     // Skip persistence on the very first commit if it matches what we got
