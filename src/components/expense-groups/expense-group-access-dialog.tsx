@@ -19,13 +19,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -36,6 +29,7 @@ import {
   type ExpenseGroupMemberSummary,
   type ExpenseGroupSummary,
 } from "@/lib/expense-groups/client";
+import { CurrencyPicker } from "./currency-picker";
 import { useExpenseGroups } from "./expense-group-context";
 import { ExpenseGroupDeleteDialog } from "./expense-group-delete-dialog";
 import { ExpenseGroupLeaveDialog } from "./expense-group-leave-dialog";
@@ -245,38 +239,13 @@ export function ExpenseGroupAccessDialog({ open, onOpenChange }: Props) {
               <Label htmlFor="expense-group-currency" className="shrink-0">
                 Currency
               </Label>
-              <Select
+              <CurrencyPicker
+                id="expense-group-currency"
                 value={activeCurrency}
+                onValueChange={handleCurrencyChange}
+                currencies={currencies}
                 disabled={changingCurrency || !groupId}
-                onValueChange={(v) => v && handleCurrencyChange(v)}
-              >
-                <SelectTrigger
-                  id="expense-group-currency"
-                  className="w-full"
-                >
-                  <SelectValue>
-                    {(value: string | null) => {
-                      const code = value ?? activeCurrency;
-                      const c = currencies.find((c) => c.code === code);
-                      if (!c) return code;
-                      return `${c.symbol} ${c.code} — ${c.name}`;
-                    }}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {currencies.length === 0 ? (
-                    <SelectItem value={activeCurrency}>
-                      {activeCurrency}
-                    </SelectItem>
-                  ) : (
-                    currencies.map((c) => (
-                      <SelectItem key={c.code} value={c.code}>
-                        {c.symbol} {c.code} — {c.name}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
+              />
               {changingCurrency ? <Spinner /> : null}
             </div>
             <form

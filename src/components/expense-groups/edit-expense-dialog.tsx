@@ -14,14 +14,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
+import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import {
   expenseGroupClient,
@@ -30,6 +28,7 @@ import {
   type ExpenseRow,
 } from "@/lib/expense-groups/client";
 import { useExpenseGroups } from "./expense-group-context";
+import { MemberPicker } from "./member-picker";
 
 type Props = {
   expense: ExpenseRow | null;
@@ -148,9 +147,11 @@ export function EditExpenseDialog({ expense, onOpenChange, onUpdated }: Props) {
         <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="edit-expense-amount">Amount</Label>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">{symbol}</span>
-              <Input
+            <InputGroup>
+              <InputGroupAddon className="border-r border-input bg-muted px-2.5 text-foreground">
+                {symbol}
+              </InputGroupAddon>
+              <InputGroupInput
                 id="edit-expense-amount"
                 type="number"
                 inputMode="decimal"
@@ -161,7 +162,7 @@ export function EditExpenseDialog({ expense, onOpenChange, onUpdated }: Props) {
                 disabled={submitting}
                 required
               />
-            </div>
+            </InputGroup>
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="edit-expense-details">Expense details</Label>
@@ -176,30 +177,14 @@ export function EditExpenseDialog({ expense, onOpenChange, onUpdated }: Props) {
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="edit-expense-paid-by">Paid by</Label>
-            <Select
+            <MemberPicker
+              id="edit-expense-paid-by"
               value={paidById}
-              disabled={submitting || loadingMembers || members.length === 0}
-              onValueChange={(v) => setPaidById(v ?? "")}
-            >
-              <SelectTrigger id="edit-expense-paid-by" className="w-full">
-                <SelectValue placeholder="Select a member">
-                  {(value: string | null) => {
-                    if (!value) return "Select a member";
-                    const m = members.find((m) => m.userId === value);
-                    if (!m) return "Select a member";
-                    return `${m.name}${currentUser?.id === m.userId ? " (you)" : ""}`;
-                  }}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {members.map((m) => (
-                  <SelectItem key={m.userId} value={m.userId}>
-                    {m.name}
-                    {currentUser?.id === m.userId ? " (you)" : ""}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              onValueChange={setPaidById}
+              members={members}
+              currentUserId={currentUser?.id ?? null}
+              disabled={submitting || loadingMembers}
+            />
           </div>
           <DialogFooter>
             <Button
