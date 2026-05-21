@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ExpenseGroupProvider } from "@/components/expense-groups/expense-group-context";
+import { AppFooter } from "@/components/app-footer";
 import { getSession } from "@/lib/auth/session";
 import { db } from "@/db";
 import { users } from "@/db/schema";
@@ -91,6 +92,7 @@ export default async function RootLayout({
             initialActiveGroupId={initialActiveGroupId}
           >
             {children}
+            <AppFooter />
             <Toaster richColors closeButton />
           </ExpenseGroupProvider>
         </ThemeProvider>
