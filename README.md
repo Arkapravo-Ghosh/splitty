@@ -2,6 +2,8 @@
 
 **Split your expenses easily.**
 
+> 🚀 **Try it live at [splitty.arkapravo.in](https://splitty.arkapravo.in)** — no install needed.
+
 ## What is Splitty?
 
 Splitty is a lightweight, self-hostable web app for tracking shared expenses inside a group of people and figuring out the simplest way to settle up. Think of it as a focused, no-frills alternative to apps like Splitwise: you create a group, add the people in it, log who paid for what, and Splitty tells everyone exactly which transfers will leave the group square — using as few payments as possible.
@@ -207,4 +209,6 @@ The browser-side wrapper for these is [src/lib/expense-groups/client.ts](src/lib
 
 ## License
 
-No license file is included yet — add one before publishing.
+Licensed under the **GNU Affero General Public License v3.0** — see [LICENSE](LICENSE) for the full text.
+
+In short: you're free to use, modify, and self-host Splitty, but if you run a modified version as a network service you must make your source available to its users under the same license.
