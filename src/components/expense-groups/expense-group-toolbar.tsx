@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ShieldIcon } from "@phosphor-icons/react";
+import { UsersThreeIcon } from "@phosphor-icons/react";
 
 import { Button } from "@/components/ui/button";
 import { ExpenseGroupSwitcher } from "./expense-group-switcher";
@@ -24,7 +24,7 @@ export function ExpenseGroupToolbar() {
         onClick={() => setAccessOpen(true)}
         className="px-2 sm:px-2.5"
       >
-        <ShieldIcon />
+        <UsersThreeIcon />
         <span className="sr-only sm:not-sr-only">{label}</span>
       </Button>
       <ExpenseGroupAccessDialog

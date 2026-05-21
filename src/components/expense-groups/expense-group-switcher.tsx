@@ -4,7 +4,7 @@ import { useState } from "react";
 import {
   CaretUpDownIcon,
   PlusIcon,
-  UsersThreeIcon,
+  WalletIcon,
 } from "@phosphor-icons/react";
 
 import { cn } from "@/lib/utils";
@@ -61,7 +61,7 @@ export function ExpenseGroupSwitcher() {
           }
         >
           <span className="flex items-center gap-1.5 truncate">
-            <UsersThreeIcon className="size-3.5 opacity-60" />
+            <WalletIcon className="size-3.5 opacity-60" />
             <span className="truncate">
               {loading && !activeGroup
                 ? "Loading…"
@@ -97,7 +97,7 @@ export function ExpenseGroupSwitcher() {
                         className="justify-between"
                       >
                         <div className="flex min-w-0 items-center gap-2">
-                          <UsersThreeIcon className="opacity-60" />
+                          <WalletIcon className="opacity-60" />
                           <span
                             className={cn(
                               "truncate",
